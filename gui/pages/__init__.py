@@ -1,1 +1,0 @@
-"""SafayeWala GUI pages."""
