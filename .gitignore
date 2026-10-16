@@ -11,3 +11,5 @@ venv/
 web/node_modules/
 web/dist/.tsbuildinfo
 *.tsbuildinfo
+web/test-results/
+web/playwright-report/
