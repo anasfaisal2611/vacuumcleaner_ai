@@ -21,12 +21,21 @@ from core.environment import (
     unreachable_dirty_locations,
     validate_environment,
 )
-from core.graph_search import SearchResult, search_with_trace
+from notebook_cells.part_a import SearchResult, search_with_trace
 
 logger = logging.getLogger("safayewala.adapter")
 
 Position = Tuple[int, int]
-DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = _ROOT / "data"
+# Ramina's notebook folder also holds Environment.txt — include it so the GUI
+# and API stay aligned with the notebook workflow.
+NOTEBOOK_DATA_DIR = _ROOT / "notebook_cells"
+
+
+def _environment_dirs() -> List[Path]:
+    """Search order for Environment*.txt files."""
+    return [DATA_DIR, NOTEBOOK_DATA_DIR]
 
 
 @dataclass
@@ -104,21 +113,33 @@ class Adapter:
             "Environment.txt": "Ours",
             "Environment_Error.txt": "Error case",
         }
+        seen: set[str] = set()
         items: List[Dict[str, str]] = []
-        for path in sorted(DATA_DIR.glob("Environment*.txt")):
-            items.append(
-                {
-                    "name": path.name,
-                    "label": mapping.get(path.name, path.stem),
-                }
-            )
+        for folder in _environment_dirs():
+            if not folder.is_dir():
+                continue
+            for path in sorted(folder.glob("Environment*.txt")):
+                if path.name in seen:
+                    continue
+                seen.add(path.name)
+                items.append(
+                    {
+                        "name": path.name,
+                        "label": mapping.get(path.name, path.stem),
+                    }
+                )
         return items
 
-    def load_from_name(self, name: str) -> Tuple[Grid, str]:
+    def _resolve_environment_path(self, name: str) -> Path:
         safe = Path(name).name
-        path = DATA_DIR / safe
-        if not path.exists() or not path.is_file():
-            raise FileNotFoundError(f"Environment file not found: {safe}")
+        for folder in _environment_dirs():
+            path = folder / safe
+            if path.exists() and path.is_file():
+                return path
+        raise FileNotFoundError(f"Environment file not found: {safe}")
+
+    def load_from_name(self, name: str) -> Tuple[Grid, str]:
+        path = self._resolve_environment_path(name)
         text = path.read_text(encoding="utf-8")
         return load_environment(path), text
 
