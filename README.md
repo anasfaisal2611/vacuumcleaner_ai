@@ -50,21 +50,22 @@ cd web && npm test && npx tsc -b --noEmit && npm run build
 ## Project structure
 
 ```
-core/                 # Member 1 algorithms (pure Python)
+notebook_cells/
+  CS-24058.ipynb      # Source of truth: Part A (graph) + Part B (CSP)
+  part_a.py           # Loads Part A cells for core/API/tests
+  Environment.txt     # Ours map (also copied under data/)
+core/                 # Thin re-exports of notebook Part A + GUI validators
   environment.py
   graph_search.py
 api/                  # FastAPI — only api/adapter.py imports csp/integration
-  server.py
-  schemas.py
-  adapter.py
-web/                  # React 18 + Vite + TS + Tailwind + Framer Motion + Zustand
-  src/components/     # GridCanvas, Splash, Sidebar, …
-  src/pages/
+web/                  # React GUI
 data/                 # Environment_Sample / Ours / Error
-notebook_cells/
 main.py
 tests/
 ```
+
+Member 1 graph search is authored in the notebook. `core/` imports those
+symbols so the web API and pytest run the **same** code you execute in Jupyter.
 
 ## Environment file format
 
