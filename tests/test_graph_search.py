@@ -1,4 +1,4 @@
-"""Tests for core.graph_search."""
+"""Tests for Member 1 graph search (notebook Part A via notebook_cells.part_a)."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from core.environment import Grid, load_environment
-from core.graph_search import (
+from notebook_cells.part_a import (
     compare_algorithms,
     format_comparison_table,
     get_successors,

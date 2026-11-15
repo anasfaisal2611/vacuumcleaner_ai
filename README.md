@@ -52,11 +52,10 @@ cd web && npm test && npx tsc -b --noEmit && npm run build
 ```
 notebook_cells/
   CS-24058.ipynb      # Source of truth: Part A (graph) + Part B (CSP)
-  part_a.py           # Loads Part A cells for core/API/tests
+  part_a.py           # Loads Part A cells for API/tests
   Environment.txt     # Ours map (also copied under data/)
-core/                 # Thin re-exports of notebook Part A + GUI validators
-  environment.py
-  graph_search.py
+core/
+  environment.py      # Re-exports notebook Grid/loader + GUI validators
 api/                  # FastAPI — only api/adapter.py imports csp/integration
 web/                  # React GUI
 data/                 # Environment_Sample / Ours / Error
@@ -64,8 +63,8 @@ main.py
 tests/
 ```
 
-Member 1 graph search is authored in the notebook. `core/` imports those
-symbols so the web API and pytest run the **same** code you execute in Jupyter.
+Member 1 graph search is authored in the notebook only (no separate
+`graph_search.py`). API/pytest import it via `notebook_cells.part_a`.
 
 ## Environment file format
 

@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 
 from core.environment import Grid, load_environment
-from core.graph_search import search_with_trace
 from notebook_cells.part_a import (
     Grid as NbGrid,
     load_environment as nb_load,
@@ -20,11 +19,6 @@ def test_core_grid_is_notebook_grid() -> None:
     """core.environment.Grid must be the class defined in Part A."""
     assert Grid is NbGrid
     assert load_environment is nb_load
-
-
-def test_core_search_is_notebook_search() -> None:
-    """core.graph_search.search_with_trace must be the Part A function."""
-    assert search_with_trace is nb_search
 
 
 def test_notebook_file_exists_with_part_a() -> None:

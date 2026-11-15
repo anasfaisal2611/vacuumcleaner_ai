@@ -9,7 +9,7 @@ from core.environment import (
     unreachable_dirty_locations,
     validate_environment,
 )
-from core.graph_search import search, search_with_trace, validate_path
+from notebook_cells.part_a import search, search_with_trace, validate_path
 
 DATA = Path(__file__).resolve().parent.parent / "data"
 

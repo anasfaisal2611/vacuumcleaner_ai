@@ -21,7 +21,7 @@ from core.environment import (
     unreachable_dirty_locations,
     validate_environment,
 )
-from core.graph_search import SearchResult, search_with_trace
+from notebook_cells.part_a import SearchResult, search_with_trace
 
 logger = logging.getLogger("safayewala.adapter")
 

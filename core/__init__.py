@@ -1,4 +1,4 @@
-"""SafayeWala core: environment loading and graph-based search."""
+"""SafayeWala core: environment helpers + notebook Part A graph search."""
 
 from core.environment import (
     EnvironmentFormatError,
@@ -7,7 +7,7 @@ from core.environment import (
     unreachable_dirty_locations,
     validate_environment,
 )
-from core.graph_search import (
+from notebook_cells.part_a import (
     SearchResult,
     compare_algorithms,
     format_comparison_table,
