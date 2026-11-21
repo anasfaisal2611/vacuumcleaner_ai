@@ -63,8 +63,10 @@ main.py
 tests/
 ```
 
-Member 1 graph search is authored in the notebook only (no separate
-`graph_search.py`). API/pytest import it via `notebook_cells.part_a`.
+Member 1 graph search is authored in the notebook; API/pytest import it via
+`notebook_cells.part_a`. CSP scheduling and mission integration live in
+`csp.py` / `integration.py` (same logic as notebook Part B + mission cells)
+so the React GUI can generate schedules and run full missions.
 
 ## Environment file format
 

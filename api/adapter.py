@@ -391,7 +391,11 @@ class Adapter:
                     "constraintsChecked": [],
                     "error_code": "CSP_NOT_AVAILABLE",
                 }
-            problem = self._csp.load_schedule(schedule_text)
+            variables = [
+                grid.task_label(i) for i in range(len(grid.dirty_locations))
+            ]
+            # Notebook-compatible loader: text + environment task labels.
+            problem = self._csp.load_schedule(schedule_text, variables=variables)
             assignment = self._csp.backtracking_search(
                 problem.get("variables"),
                 problem.get("domains"),
@@ -402,20 +406,31 @@ class Adapter:
                     "schedule": None,
                     "assignment": None,
                     "message": "CSP found no feasible schedule",
-                    "constraintsChecked": list(problem.get("constraints", [])),
+                    "constraintsChecked": ["precedence", "latest-slot", "exclusivity"],
                     "error_code": None,
                 }
 
-            def slot_key(item: Tuple[str, str]) -> int:
-                digits = "".join(ch for ch in item[1] if ch.isdigit())
+            def slot_key(item: Tuple[str, Any]) -> int:
+                digits = "".join(ch for ch in str(item[1]) if ch.isdigit())
                 return int(digits) if digits else 0
 
             ordered = [v for v, _ in sorted(assignment.items(), key=slot_key)]
+            checked = ["precedence", "latest-slot", "exclusivity"]
+            if hasattr(self._csp, "verify_schedule"):
+                try:
+                    checked = [
+                        f"{desc}: {'OK' if ok else 'FAIL'}"
+                        for desc, ok in self._csp.verify_schedule(
+                            assignment, problem.get("constraints", {})
+                        )
+                    ]
+                except Exception:  # noqa: BLE001
+                    pass
             return {
                 "schedule": ordered,
                 "assignment": dict(assignment),
                 "message": "CSP schedule generated",
-                "constraintsChecked": ["precedence", "latest-slot", "exclusivity"],
+                "constraintsChecked": checked,
                 "error_code": None,
             }
         except Exception as exc:  # noqa: BLE001
