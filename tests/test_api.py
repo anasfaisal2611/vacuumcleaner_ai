@@ -18,13 +18,13 @@ def test_health() -> None:
     assert r.json()["status"] == "ok"
 
 
-def test_backend_status_missing_modules() -> None:
+def test_backend_status_modules_available() -> None:
     r = client.get("/api/backend-status")
     assert r.status_code == 200
     body = r.json()
-    assert body["csp"] is False
-    assert body["integration"] is False
-    assert "csp" in body["missing"]
+    assert body["csp"] is True
+    assert body["integration"] is True
+    assert body["missing"] == []
 
 
 def test_list_environments() -> None:
@@ -121,26 +121,47 @@ def test_mission_manual_success() -> None:
     assert "MANUAL" in body["message"].upper()
 
 
-def test_mission_csp_not_available() -> None:
-    text = (DATA / "Environment_Sample.txt").read_text(encoding="utf-8")
+def test_schedule_csp_sample() -> None:
+    env = (DATA / "Environment_Sample.txt").read_text(encoding="utf-8")
+    sched = (
+        Path(__file__).resolve().parent.parent
+        / "notebook_cells"
+        / "schedule_sample.txt"
+    ).read_text(encoding="utf-8")
+    r = client.post(
+        "/api/schedule/generate",
+        json={"envText": env, "scheduleText": sched},
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["schedule"] is not None
+    assert set(body["schedule"]) == {"D1", "D2", "D3", "D4"}
+    assert body["assignment"]
+
+
+def test_mission_csp_sample() -> None:
+    env = (DATA / "Environment_Sample.txt").read_text(encoding="utf-8")
+    sched = (
+        Path(__file__).resolve().parent.parent
+        / "notebook_cells"
+        / "schedule_sample.txt"
+    ).read_text(encoding="utf-8")
+    gen = client.post(
+        "/api/schedule/generate",
+        json={"envText": env, "scheduleText": sched},
+    ).json()
+    assert gen["schedule"]
     r = client.post(
         "/api/mission/execute",
         json={
-            "envText": text,
-            "schedule": ["D1"],
-            "algorithm": "bfs",
+            "envText": env,
+            "schedule": gen["schedule"],
+            "algorithm": "astar",
             "scheduleSource": "csp",
         },
     )
-    assert r.status_code == 503
-    assert r.json()["error"]["code"] == "INTEGRATION_NOT_AVAILABLE"
-
-
-def test_schedule_csp_not_available() -> None:
-    text = (DATA / "Environment_Sample.txt").read_text(encoding="utf-8")
-    r = client.post(
-        "/api/schedule/generate",
-        json={"envText": text, "scheduleText": "4\n0\n0\n"},
-    )
-    assert r.status_code == 503
-    assert r.json()["error"]["code"] == "CSP_NOT_AVAILABLE"
+    assert r.status_code == 200
+    body = r.json()
+    assert body["success"] is True
+    assert body["scheduleSource"] == "csp"
+    assert body["completePath"]
